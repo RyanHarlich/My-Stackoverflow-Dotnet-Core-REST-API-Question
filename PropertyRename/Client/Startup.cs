@@ -15,6 +15,11 @@ using Client.Data;
 using Client.Models.HyperMediaControls;
 using Microsoft.Extensions.DependencyModel;
 using Library.Data;
+using System.Text.Json.Serialization;
+using Library.Models;
+using System.Text.Json;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Library.Models.HyperMediaControls;
 
 namespace Client
 {
@@ -41,11 +46,26 @@ namespace Client
              .AddJsonOptions(options => {
                  options.JsonSerializerOptions.IgnoreNullValues = true;
                  options.JsonSerializerOptions.WriteIndented = true;
+                 options.JsonSerializerOptions.Converters.Add(new InfoBaseConverter());
              });
 
             ServiceProvider serviceProvider = services.BuildServiceProvider();
             ClientContext dbContext = serviceProvider.GetService<ClientContext>();
             services.RegisterYourLibrary(dbContext, new API.InheritedMasterNode());
+        }
+
+        class InfoBaseConverter : JsonConverter<Library.Models.Info>
+        {
+            public override Info Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override void Write(Utf8JsonWriter writer,
+                Info value,
+                JsonSerializerOptions options) => SerializeInfo.Serialize(writer, value, "level1Name", "infoInherited");
+
+ 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
